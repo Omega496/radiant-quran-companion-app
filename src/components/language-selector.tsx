@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLanguage } from "@/contexts/language-context";
-import { language as LanguageIcon } from "lucide-react";
+import { Languages as LanguageIcon } from "lucide-react";
 
 const languages = [
   { id: "ar", label: "العربية" },
