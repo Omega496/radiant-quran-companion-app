@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
-import { Play, Bookmark, ArrowLeft, ArrowRight } from "lucide-react";
+import { Play, Bookmark, ArrowLeft, ArrowRight, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,6 +11,7 @@ import { useBookmarks, useReadingPosition } from "@/services/favorites-service";
 import { useLanguage } from "@/contexts/language-context";
 import { toast } from "@/components/ui/sonner";
 import { Link } from "react-router-dom";
+import { Input } from "@/components/ui/input";
 
 const Surah = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,6 +26,7 @@ const Surah = () => {
   
   const [currentVerseIndex, setCurrentVerseIndex] = useState<number>(initialVerseId ? initialVerseId - 1 : 0);
   const [audioMode, setAudioMode] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const versesRef = useRef<(HTMLDivElement | null)[]>([]);
 
   // Store the last read surah in localStorage
@@ -89,6 +91,17 @@ const Surah = () => {
     }
   };
 
+  // Filter verses based on search query
+  const filteredVerses = surah?.verses.filter(verse => {
+    if (!searchQuery.trim()) return true;
+    
+    const query = searchQuery.toLowerCase();
+    return (
+      verse.text.toLowerCase().includes(query) || 
+      verse.translation.toLowerCase().includes(query)
+    );
+  });
+
   if (error) {
     return (
       <div className="text-center py-10">
@@ -100,6 +113,25 @@ const Surah = () => {
 
   return (
     <div className="pb-20">
+      {/* Search Bar */}
+      <div className="mb-6">
+        <div className="relative">
+          <Input
+            type="text"
+            placeholder={t("search_verses") || "Search verses"}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pr-10"
+          />
+          <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        </div>
+        {searchQuery && filteredVerses && (
+          <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            {filteredVerses.length} {filteredVerses.length === 1 ? t("result") : t("results")} {t("found")}
+          </div>
+        )}
+      </div>
+      
       {/* Surah Header */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
@@ -168,38 +200,43 @@ const Surah = () => {
         </div>
       ) : surah ? (
         <div className="space-y-1">
-          {surah.verses.map((verse, index) => (
-            <div 
-              key={index}
-              ref={(el) => (versesRef.current[index] = el)}
-              className={`verse-container ${currentVerseIndex === index ? 'verse-highlight' : ''}`}
-              onClick={() => handleVerseClick(index)}
-            >
-              <div className="flex justify-between items-start mb-2">
-                <div className="bg-quran-primary text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">
-                  {verse.number}
+          {(filteredVerses || []).map((verse, index) => {
+            // Find the actual index in the original verses array
+            const originalIndex = surah.verses.findIndex(v => v.number === verse.number);
+            
+            return (
+              <div 
+                key={verse.number}
+                ref={(el) => (versesRef.current[originalIndex] = el)}
+                className={`verse-container ${currentVerseIndex === originalIndex ? 'verse-highlight' : ''}`}
+                onClick={() => handleVerseClick(originalIndex)}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <div className="bg-quran-primary text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">
+                    {verse.number}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleVerseBookmark(originalIndex);
+                    }}
+                    className="text-gray-500 hover:text-quran-primary dark:text-gray-400"
+                  >
+                    <Bookmark className="h-4 w-4" />
+                    <span className="sr-only">{t("bookmark")}</span>
+                  </Button>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleVerseBookmark(index);
-                  }}
-                  className="text-gray-500 hover:text-quran-primary dark:text-gray-400"
-                >
-                  <Bookmark className="h-4 w-4" />
-                  <span className="sr-only">{t("bookmark")}</span>
-                </Button>
+                <div dir="rtl" className="arabic-text text-xl md:text-2xl mb-3 font-amiri">
+                  {verse.text}
+                </div>
+                <div className="text-gray-700 dark:text-gray-300 text-sm md:text-base">
+                  {verse.translation}
+                </div>
               </div>
-              <div dir="rtl" className="arabic-text text-xl md:text-2xl mb-3 font-amiri">
-                {verse.text}
-              </div>
-              <div className="text-gray-700 dark:text-gray-300 text-sm md:text-base">
-                {verse.translation}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : null}
 
