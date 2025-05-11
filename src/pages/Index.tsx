@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { BookOpen, Clock } from "lucide-react";
+import { BookOpen, Clock, Search } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,12 +17,12 @@ const Index = () => {
 
   // Popular surahs that many Muslims regularly read
   const popularSurahs = [
-    { id: 1, nameAr: "الفاتحة", nameEn: "Al-Fatihah" }, // The Opening
-    { id: 36, nameAr: "يس", nameEn: "Ya-Sin" }, // Ya-Sin
-    { id: 55, nameAr: "الرحمن", nameEn: "Ar-Rahman" }, // The Most Merciful
-    { id: 56, nameAr: "الواقعة", nameEn: "Al-Waqi'ah" }, // The Inevitable
-    { id: 67, nameAr: "الملك", nameEn: "Al-Mulk" }, // The Sovereignty
-    { id: 112, nameAr: "الإخلاص", nameEn: "Al-Ikhlas" }, // Sincerity
+    { id: 1, nameAr: "الفاتحة", nameEn: "Al-Fatihah", nameTranslation: "The Opening", revelationType: "Meccan", versesCount: 7 },
+    { id: 36, nameAr: "يس", nameEn: "Ya-Sin", nameTranslation: "Ya Sin", revelationType: "Meccan", versesCount: 83 },
+    { id: 55, nameAr: "الرحمن", nameEn: "Ar-Rahman", nameTranslation: "The Beneficent", revelationType: "Medinan", versesCount: 78 },
+    { id: 56, nameAr: "الواقعة", nameEn: "Al-Waqi'ah", nameTranslation: "The Inevitable", revelationType: "Meccan", versesCount: 96 },
+    { id: 67, nameAr: "الملك", nameEn: "Al-Mulk", nameTranslation: "The Sovereignty", revelationType: "Meccan", versesCount: 30 },
+    { id: 112, nameAr: "الإخلاص", nameEn: "Al-Ikhlas", nameTranslation: "Sincerity", revelationType: "Meccan", versesCount: 4 },
   ];
 
   useEffect(() => {
@@ -143,26 +143,47 @@ const Index = () => {
         </Card>
       </div>
 
-      {/* Popular Surahs Section */}
+      {/* Popular Surahs Section - Updated to match All Surahs page */}
       <section>
-        <h2 className="text-2xl font-bold mb-4">{t("popular_surahs")}</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold">{t("popular_surahs")}</h2>
+          <Button variant="outline" asChild>
+            <Link to="/all-surahs" className="flex items-center gap-2">
+              <span>{t("view_all")}</span>
+            </Link>
+          </Button>
+        </div>
+        
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {popularSurahs.map(surah => (
+          {popularSurahs.map((surah) => (
             <Link
               to={`/surah/${surah.id}`}
               key={surah.id}
-              className="surah-card group"
+              className="border rounded-md overflow-hidden hover:shadow-md transition-shadow duration-200 group relative"
             >
-              <div className="p-4">
+              <div className="absolute top-2 left-2 bg-quran-primary text-white text-xs px-2 py-1 rounded-full">
+                {surah.id}
+              </div>
+              <div className="p-4 pt-8">
                 <div className="text-xl font-amiri mb-2 text-center">
                   {surah.nameAr}
                 </div>
                 <div className="text-sm text-center text-gray-600 dark:text-gray-400">
                   {surah.nameEn}
                 </div>
+                <div className="text-xs text-center text-gray-500 dark:text-gray-500 mt-1">
+                  {surah.nameTranslation}
+                </div>
               </div>
-              <div className="bg-quran-light dark:bg-quran-dark/20 text-center py-2 text-sm text-quran-primary dark:text-quran-accent group-hover:bg-quran-primary group-hover:text-white dark:group-hover:bg-quran-primary dark:group-hover:text-white transition-colors duration-200">
-                {t("surah")} {surah.id}
+              <div className="bg-quran-light dark:bg-quran-dark/20 text-center py-2 text-xs flex justify-between px-4">
+                <span>{surah.revelationType === "Meccan" ? 
+                  (language === "ar" ? "مكية" : "Meccan") : 
+                  (language === "ar" ? "مدنية" : "Medinan")}
+                </span>
+                <div className="flex items-center gap-1">
+                  <BookOpen className="h-3 w-3" />
+                  <span>{surah.versesCount}</span>
+                </div>
               </div>
             </Link>
           ))}
