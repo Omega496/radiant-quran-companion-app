@@ -1,6 +1,6 @@
 
 import { NavLink } from "react-router-dom";
-import { Home, BookOpen, Clock, Bookmark, Search, Settings } from "lucide-react";
+import { Home, BookOpen, Clock, Bookmark, Search, Settings, List } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarHeader, SidebarFooter } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
 import { LanguageSelector } from "@/components/language-selector";
@@ -13,6 +13,7 @@ export function AppSidebar() {
   const navItems = [
     { name: t("home"), href: "/", icon: Home },
     { name: t("surahs"), href: "/surah/1", icon: BookOpen },
+    { name: t("all_surahs"), href: "/all-surahs", icon: List },
     { name: t("prayer_times"), href: "/prayer-times", icon: Clock },
     { name: t("favorites"), href: "/favorites", icon: Bookmark },
     { name: t("search"), href: "/search", icon: Search },

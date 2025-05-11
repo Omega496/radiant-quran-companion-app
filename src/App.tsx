@@ -16,6 +16,7 @@ import Favorites from "@/pages/favorites";
 import Search from "@/pages/search";
 import Settings from "@/pages/settings";
 import NotFound from "@/pages/NotFound";
+import AllSurahs from "@/pages/all-surahs";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
                   <Route path="/favorites" element={<Favorites />} />
                   <Route path="/search" element={<Search />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/all-surahs" element={<AllSurahs />} />
                   <Route path="*" element={<NotFound />} />
                 </Route>
               </Routes>
